@@ -3,7 +3,12 @@ import { ScrollView, StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Title, Provider as PaperProvider } from 'react-native-paper';
 import * as DocumentPicker from 'expo-document-picker';
 
-const RegisterPage = () => {
+// You must provide userId to this component, e.g. via props, context, or global store
+import { getUser } from '../common/AuthStore'; // adjust path as needed
+
+
+const RegisterPage = ({ navigation, route }) => {
+  const [userId, setUserId] = useState(route?.params?.userId || '');
   const [fullName, setFullName] = useState('');
   const [address, setAddress] = useState('');
   const [mobileNo, setMobileNo] = useState('');
@@ -14,6 +19,17 @@ const RegisterPage = () => {
   const [nicFile, setNicFile] = useState(null);
   const [shopImage, setShopImage] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  React.useEffect(() => {
+    if (!userId) {
+      (async () => {
+        try {
+          const user = await getUser();
+          if (user && (user._id || user.id)) setUserId(user._id || user.id);
+        } catch {}
+      })();
+    }
+  }, [userId]);
 
   const pickNicFile = async () => {
     const res = await DocumentPicker.getDocumentAsync({
@@ -37,9 +53,11 @@ const RegisterPage = () => {
   const handleSubmit = async () => {
     if (!nicFile) return Alert.alert('Validation Error', 'Please select a NIC file.');
     if (!shopImage) return Alert.alert('Validation Error', 'Please select a bookshop image.');
+    if (!userId) return Alert.alert('Error', 'User ID is missing. Please log in again.');
 
     setLoading(true);
     try {
+      console.log('Registering owner with userId:', userId);
       const formData = new FormData();
       formData.append('fullName', fullName);
       formData.append('address', address);
@@ -48,6 +66,7 @@ const RegisterPage = () => {
       formData.append('district', district);
       formData.append('city', city);
       formData.append('nic', nic);
+      formData.append('userId', userId);
 
       formData.append('nicFile', {
         uri: nicFile.uri,
@@ -72,8 +91,21 @@ const RegisterPage = () => {
         throw new Error(text || `HTTP ${res.status}`);
       }
 
-      await res.json();
-      Alert.alert('✅ Success', 'Owner registered successfully!');
+      const result = await res.json();
+      // Expecting ownerId in the response
+      const ownerId = result?.ownerId || result?._id;
+      Alert.alert('✅ Success', 'Owner registered successfully!', [
+        {
+          text: 'OK',
+          onPress: () => {
+            if (ownerId) {
+              navigation.navigate('Books', { ownerId });
+            } else {
+              navigation.navigate('Books');
+            }
+          },
+        },
+      ]);
 
       // Reset
       setFullName('');

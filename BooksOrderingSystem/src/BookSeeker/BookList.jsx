@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
+
 import { View, Text, FlatList, Image, TextInput, ActivityIndicator, TouchableOpacity, TouchableWithoutFeedback, RefreshControl, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import BottomNavigation from '../common/BottomNavigation';
+import Heading from '../common/Heading';
 
 const BASE_URL = 'http://10.201.182.65:3001';
 
@@ -78,132 +81,103 @@ export default function BookListScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Find Your Book</Text>
-      </View>
-
-      <View style={styles.searchContainer}>
-        <TouchableWithoutFeedback onPress={() => { /* Handle Search Icon Press if needed */ }}>
-          <Ionicons name="search" size={24} color="black" style={styles.searchIcon} />
-        </TouchableWithoutFeedback>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search books"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
+      <View style={{ flex: 1 }}>
+        <Heading title="Find Your Book" />
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search books"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          <TouchableWithoutFeedback onPress={() => {}}>
+            <Ionicons name="search" size={24} color="black" style={styles.searchIcon} />
+          </TouchableWithoutFeedback>
+        </View>
+        
+        <FlatList
+          data={filteredBooks}
+          keyExtractor={item => item._id}
+          numColumns={2}
+          columnWrapperStyle={{ alignItems: 'stretch' }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          ListEmptyComponent={<Text style={styles.empty}>No books found.</Text>}
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              {item.imageUri
+                ? <Image source={{ uri: item.imageUri }} style={styles.image} resizeMode="cover" />
+                : <View style={[styles.image, styles.placeholder]} />}
+              <Text style={styles.name}>{item.title}</Text>
+              {!!item.price && <Text style={styles.price}>Rs. {item.price}</Text>}
+              <Text style={styles.stock}>Stock Level: {item.stock}</Text>
+              <View style={styles.actions}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => navigation.navigate('AddQuantity', { bookId: item.id })}
+                >
+                  <Text style={styles.buttonText}>Buy Now</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button}>
+                  <Text style={styles.buttonText}>Book Now</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 50, marginTop: 12 }}
         />
       </View>
-
-      <FlatList
-        data={filteredBooks}
-        keyExtractor={item => item._id}
-        numColumns={2}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        ListEmptyComponent={<Text style={styles.empty}>No books found.</Text>}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            {item.imageUri
-              ? <Image source={{ uri: item.imageUri }} style={styles.image} resizeMode="cover" />
-              : <View style={[styles.image, styles.placeholder]} />}
-            <Text style={styles.title}>{item.title}</Text>
-            {!!item.price && <Text style={styles.price}>Rs. {item.price}</Text>}
-            <Text style={styles.stock}>Stock Level: {item.stock}</Text>
-
-            <View style={styles.actions}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => navigation.navigate('AddQuantity', { bookId: item.id})} // Pass userId along
-              >
-                <Text style={styles.buttonText}>Buy Now</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.button}
-              
-              >
-                <Text style={styles.buttonText}>Book Now</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      />
+      <View style={{ height: 50 }}>
+        <BottomNavigation navigation={navigation} />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f2f2f2' },
-  header: {
-    backgroundColor: '#007bff', 
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 20,
+    marginLeft: 10,
+    marginRight: 10,
     backgroundColor: '#fff',
-    marginTop: 10,
-    width: '90%',
-    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#120a0aff',
+    marginTop: 1,
+    borderRadius: 6,
     paddingHorizontal: 10,
   },
-  searchInput: {
-    height: 40,
-    flex: 1,
-    paddingLeft: 10,
-    fontSize: 16,
-    borderRadius: 5,
-    backgroundColor: '#e6e6e6',
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
+  searchInput: { height: 40, flex: 1, paddingLeft: 10, fontSize: 16 },
+  searchIcon: { marginRight: 8 },
   card: {
-    flex: 1,
-    margin: 8,
-    backgroundColor: '#fff',
+    width: '48%',
+    margin: '1%',
+    marginLeft: 12,
+    backgroundColor: 'rgba(255,255,255,0.95)',
     padding: 10,
     borderRadius: 8,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    minWidth: '45%',
-    maxWidth: '50%',
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
   image: {
     width: '100%',
     height: 120,
+    minHeight: 120,
+    maxHeight: 120,
     resizeMode: 'cover',
-    borderRadius: 6,
     marginBottom: 8,
+    borderRadius: 6,
   },
   placeholder: { backgroundColor: '#eaeaea' },
-  title: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  price: {
-    fontSize: 12,
-    color: '#666',
-  },
-  stock: {
-    fontSize: 12,
-    color: '#999',
-  },
+  name: { fontSize: 16, fontWeight: '600' },
+  price: { fontSize: 12, color: '#666' },
+  stock: { fontSize: 12, color: '#999' },
   actions: {
     flexDirection: 'row',
     marginTop: 8,
@@ -219,13 +193,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '48%',
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  error: {
-    color: 'red',
-    textAlign: 'center',
-    marginTop: 10,
-  },
+  buttonText: { color: '#fff', fontWeight: 'bold' },
+  error: { color: 'red', textAlign: 'center', marginTop: 10 },
+  empty: { textAlign: 'center', marginTop: 20, color: '#999' },
 });

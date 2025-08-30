@@ -25,6 +25,7 @@ import ShopTable from './src/Admin/RegisteredShops';
 import ViewShopDetails from './src/Admin/ViewShopDetails';
 import PaymentScreen from './src/common/PaymentScreen';
 import PaymentSuccess from './src/common/PaymentSuccess';
+import AddAddress from './src/BookSeeker/AddAddress';
 
 const Stack = createStackNavigator();
 
@@ -52,7 +53,7 @@ function AppNavigator() {
         <Stack.Screen name="BookList" component={BookList} options={{ headerShown: false }} />
         <Stack.Screen name="AddQuantity" component={AddQuantity} options={{ headerShown: false }} />
         <Stack.Screen name="Cart" component={Cart} options={{ headerShown: false }} />
-        
+        <Stack.Screen name="AddAddress" component={AddAddress} options={{ headerShown: false }} />
         {/* Payment Screens */}
         <Stack.Screen name="PaymentScreen" component={PaymentScreen} options={{ headerShown: false }} />
         <Stack.Screen name="PaymentSuccess" component={PaymentSuccess} options={{ headerShown: false }} />

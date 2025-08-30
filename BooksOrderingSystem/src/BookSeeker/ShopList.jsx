@@ -23,29 +23,32 @@ const ShopListScreen = ({ navigation }) => {
      const res = await fetch(`${BASE_URL}/api/owners`);
      if (!res.ok) throw new Error(`HTTP ${res.status}`);
      const data = await res.json();
- 
-     // Fetch books for each shop in parallel and map to UI structure
-    const shopsWithBooks = await Promise.all(
-   (Array.isArray(data) ? data : []).map(async (o) => {
-     let books = [];
-     try {
-       const booksRes = await fetch(`${BASE_URL}/api/owners/${o._id}/books`);
-       books = booksRes.ok ? await booksRes.json() : [];
-     } catch {
-       books = [];
-     }
-     // ...map to your UI structure...
-     return {
-       id: o._id,
-       name: o.bookShopName || 'Unnamed',
-       location: [o.city, o.district].filter(Boolean).join(', '),
-       imageUri: `${BASE_URL}/${(o.bookshopImage || '').replace(/\\/g, '/')}`,
-       books,
-       raw: o,
-     };
-   })
- );
- 
+
+     // Only include owners with status 'Approved'
+     const approvedOwners = (Array.isArray(data) ? data : []).filter(o => o.status === 'Approved');
+
+     // Fetch books for each approved shop in parallel and map to UI structure
+     const shopsWithBooks = await Promise.all(
+       approvedOwners.map(async (o) => {
+         let books = [];
+         try {
+           const booksRes = await fetch(`${BASE_URL}/api/owners/${o._id}/books`);
+           books = booksRes.ok ? await booksRes.json() : [];
+         } catch {
+           books = [];
+         }
+         // ...map to your UI structure...
+         return {
+           id: o._id,
+           name: o.bookShopName || 'Unnamed',
+           location: [o.city, o.district].filter(Boolean).join(', '),
+           imageUri: `${BASE_URL}/${(o.bookshopImage || '').replace(/\\/g, '/')}`,
+           books,
+           raw: o,
+         };
+       })
+     );
+
      setShops(shopsWithBooks);
    } catch (e) {
      setError(e.message || 'Failed to load bookshops');
@@ -98,10 +101,9 @@ const handlePress = (ownerId) => {
 
   return (
     <View style={styles.container}>
-      {/* Header with Search Bar */}
-      <View>
+      {/* Main content area: search bar + FlatList, fills available space */}
+      <View style={{ flex: 1 }}>
         <Heading title="Find Your Book" />
-
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
@@ -109,44 +111,49 @@ const handlePress = (ownerId) => {
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-           <TouchableWithoutFeedback onPress={() => {}}>
-                      <Ionicons name="search" size={24} color="black" style={styles.searchIcon} />
-                    </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={() => {}}>
+            <Ionicons name="search" size={24} color="black" style={styles.searchIcon} />
+          </TouchableWithoutFeedback>
         </View>
         {!!error && <Text style={{ color: '#fff', marginLeft: 20, marginTop: 6 }}>⚠ {error}</Text>}
+        {/* FlatList fills remaining space below search bar */}
+        <View style={{ flex: 1 }}>
+          <FlatList
+            data={filteredShops}
+            keyExtractor={(item) => item.id}
+            numColumns={2}
+            columnWrapperStyle={{ alignItems: 'stretch' }}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+            ListEmptyComponent={
+              <View style={{ padding: 24 }}>
+                <Text style={{ textAlign: 'center' }}>
+                  {searchQuery ? 'No shops match your search.' : 'No shops found.'}
+                </Text>
+              </View>
+            }
+            renderItem={({ item }) => (
+              <TouchableOpacity style={styles.card} onPress={() => handlePress(item.id)}>
+                {item.imageUri ? (
+                  <Image source={{ uri: item.imageUri }} style={styles.image} resizeMode="cover" />
+                ) : (
+                  <View style={[styles.image, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#eaeaea' }]}>
+                    <Ionicons name="image" size={28} color="#999" />
+                  </View>
+                )}
+                <Text style={styles.name}>{item.name}</Text>
+                <Text style={styles.location}>{item.location}</Text>
+              </TouchableOpacity>
+            )}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 50 }}
+          />
+        </View>
       </View>
 
-      {/* Town List */}
-      <FlatList
-        data={filteredShops}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        ListEmptyComponent={
-          <View style={{ padding: 24 }}>
-            <Text style={{ textAlign: 'center' }}>
-              {searchQuery ? 'No shops match your search.' : 'No shops found.'}
-            </Text>
-          </View>
-        }
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card} onPress={() => handlePress(item.id)}>
-            {item.imageUri ? (
-              <Image source={{ uri: item.imageUri }} style={styles.image} resizeMode="cover" />
-            ) : (
-              <View style={[styles.image, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#eaeaea' }]}>
-                <Ionicons name="image" size={28} color="#999" />
-              </View>
-            )}
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.location}>{item.location}</Text>
-          </TouchableOpacity>
-        )}
-      />
-
-      <View >
+      {/* Bottom Navigation always at bottom, does not overlap FlatList */}
+      <View style={{ height: 50 }}>
         <BottomNavigation navigation={navigation} />
       </View>
     </View>
@@ -156,7 +163,7 @@ const handlePress = (ownerId) => {
 export default ShopListScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: '#f2f2f2' },
   header: {
     backgroundColor: '#007bff',
     paddingVertical: 20,
@@ -172,23 +179,33 @@ const styles = StyleSheet.create({
     marginLeft: 10,              // Add left margin for spacing
     marginRight: 10,
     backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#120a0aff',
     marginTop: 1,
     borderRadius: 6,
   },
   searchInput: { height: 40, flex: 1, paddingLeft: 10, fontSize: 16 },
   searchIcon: { marginRight: 8 },
   card: {
-    flex: 1,
-    margin: 8,
+    width: '48%',
+    margin: '1%',
     backgroundColor: '#f2f2f2',
     padding: 10,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    minWidth: '45%',
-    maxWidth: '50%',
+    minHeight: 200,
+    maxHeight: 200,
   },
-  image: { width: '100%', height: 120, resizeMode: 'cover', marginBottom: 8, borderRadius: 6 },
+  image: {
+    width: '100%',
+    height: 120,
+    minHeight: 120,
+    maxHeight: 120,
+    resizeMode: 'cover',
+    marginBottom: 8,
+    borderRadius: 6,
+  },
   name: { fontSize: 16, fontWeight: '600' },
   location: { color: '#666' },
 });

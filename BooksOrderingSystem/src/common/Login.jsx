@@ -28,13 +28,37 @@ export default function Login({ navigation }) {
 
       // Navigate based on user role, pass userId to the next screen
       if (data.user.role === 'BOOKSELLER') {
-        navigation.replace('Home', { userId: data.user._id });  // Pass userId to Home
-      } 
+        try {
+          const userId = data.user._id || data.user.id;
+          console.log('Fetching owner for userId:', userId);
+          const ownerRes = await fetch(`${BASE_URL}/api/owner/by-user/${userId}`);
+
+          const text = await ownerRes.text();
+          let ownerData;
+          try {
+            ownerData = JSON.parse(text);
+          } catch {
+            throw new Error('Invalid response from server');
+          }
+          console.log('Owner API response:', ownerData);
+          if (!ownerRes.ok) {
+            // If owner not found, navigate to Home (not error)
+            navigation.replace('Home', { userId });
+            return;
+          }
+          // Navigate to Books page for any status
+          navigation.replace('Books', { ownerId: ownerData._id, status: ownerData.status });
+        } catch (err) {
+          console.log('Owner status fetch error:', err);
+          Alert.alert('Error', err.message || 'Could not verify owner status.');
+          navigation.replace('Home', { userId: data.user._id });
+        }
+      }
       else if (data.user.role === 'BOOKSEEKER') {
-        navigation.replace('ShopList', { userId: data.user._id });  // Pass userId to Home
+        navigation.replace('ShopList', { userId: data.user._id });
       } 
       else {
-        navigation.replace('ShopTable', { userId: data.user._id });  // Pass userId to ShopList
+        navigation.replace('ShopTable', { userId: data.user._id });
       }
     } catch (e) {
       Alert.alert('Login failed', e.message);
@@ -78,7 +102,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f7f7f7', // Light background color
+    backgroundColor: '#f7f7f7',
     padding: 20,
   },
   header: {

@@ -1,5 +1,6 @@
 const express = require('express');
-const { registerOwner, upload ,getAllOwners,getOwnerDetails ,deleteOwner,updateOwner   } = require('../Controllers/OwnerController.js');
+const { registerOwner, upload, getAllOwners, getOwnerDetails, deleteOwner, updateOwner, getOwnerByUserId } = require('../Controllers/OwnerController.js');
+
 
 const router = express.Router();
 
@@ -22,6 +23,10 @@ router.put('/owner/:ownerId', upload.single('nicFile'), updateOwner); // Use PUT
 router.get('/owner/:ownerId', getOwnerDetails);
 
 router.delete('/owner/:ownerId', deleteOwner);
+
+// GET request to retrieve owner details by userId
+router.get('/owner/by-user/:userId', getOwnerByUserId);
+
 
 
 

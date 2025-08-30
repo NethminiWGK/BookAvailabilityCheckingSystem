@@ -26,7 +26,13 @@ async function addToCart(req, res) {
     if (!cart) {
       const created = await Cart.create({
         userId,
-        items: [{ bookId, title: book.title, price: book.price, quantity: qty }],
+        items: [{
+          bookId,
+          title: book.title,
+          coverImage: book.coverImage,
+          price: book.price,
+          quantity: qty
+        }],
       });
       return res.json({ message: 'Item added', cart: created.items });
     }
@@ -34,11 +40,18 @@ async function addToCart(req, res) {
     // item exists?
     const idx = cart.items.findIndex(i => String(i.bookId) === String(bookId));
     if (idx === -1) {
-      cart.items.push({ bookId, title: book.title, price: book.price, quantity: qty });
+      cart.items.push({
+        bookId,
+        title: book.title,
+        coverImage: book.coverImage,
+        price: book.price,
+        quantity: qty
+      });
     } else {
       cart.items[idx].quantity += qty;
       cart.items[idx].price = book.price;   // keep in sync
       cart.items[idx].title = book.title;
+      cart.items[idx].coverImage = book.coverImage;
     }
 
     await cart.save();
@@ -55,7 +68,37 @@ async function getCart(req, res) {
     if (!isId(userId)) return res.status(400).json({ error: 'Invalid userId' });
 
     const cart = await Cart.findOne({ userId }).lean();
-    return res.json({ cart: cart?.items || [] });
+    return res.json({
+      cart: cart?.items || [],
+      address: cart?.address || null
+    });
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+}
+
+// POST /api/cart/address  (body: { userId, address: { province, district, city, phone } })
+async function updateCartAddress(req, res) {
+  try {
+    const { userId, address } = req.body;
+    if (!isId(userId)) return res.status(400).json({ error: 'Invalid userId' });
+    if (
+      !address ||
+      !address.province ||
+      !address.district ||
+      !address.city ||
+      !address.street ||
+      !address.name ||
+      !address.mobileNo
+    ) {
+      return res.status(400).json({ error: 'All address fields are required' });
+    }
+    const cart = await Cart.findOneAndUpdate(
+      { userId },
+      { $set: { address } },
+      { new: true, upsert: true }
+    );
+    return res.json({ message: 'Address updated', address: cart.address });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
@@ -112,4 +155,4 @@ async function deleteCart(req, res) {
   }
 }
 
-module.exports = { addToCart, getCart, updateItemQuantity, removeItemFromCart, deleteCart };
+module.exports = { addToCart, getCart, updateItemQuantity, removeItemFromCart, deleteCart, updateCartAddress };

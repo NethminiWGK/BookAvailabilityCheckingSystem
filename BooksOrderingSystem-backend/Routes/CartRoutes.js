@@ -5,8 +5,12 @@ const {
   getCart,
   updateItemQuantity,
   removeItemFromCart,
-  deleteCart, 
+  deleteCart,
+  updateCartAddress
 } = require('../Controllers/CartController.js');  // Import CartController
+// POST: Update address in cart
+
+
 const verifyToken = require('../Middleware/VerifyToken'); 
 
 const router = express.Router();
@@ -16,6 +20,8 @@ router.post('/cart', addToCart);
 
 // GET: Get the cart of a specific user
 router.get('/cart/:userId', getCart);
+
+router.post('/cart/address', updateCartAddress);
 
 // POST: Update item quantity in cart
 router.put('/cart/update', updateItemQuantity);

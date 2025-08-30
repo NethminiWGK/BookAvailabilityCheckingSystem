@@ -29,10 +29,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingVertical: 15,
     borderTopWidth: 1,
-    marginBottom: 40,
     borderColor: '#ccc',
     backgroundColor: '#fff',
-    
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 10,
+    marginBottom: 37,
   },
   button: {
     alignItems: 'center',

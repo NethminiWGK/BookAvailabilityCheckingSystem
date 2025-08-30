@@ -93,41 +93,137 @@ const AddQuantityScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{book.title}</Text>
-      <Image source={{ uri: `${BASE_URL}/${book.coverImage}` }} style={styles.image} />
-      <Text style={styles.price}>Rs. {book.price}</Text>
+      <View style={styles.card}>
+        <Image source={{ uri: `${BASE_URL}/${book.coverImage}` }} style={styles.image} />
+        <Text style={styles.title}>{book.title}</Text>
+        <Text style={styles.price}>Rs. {book.price}</Text>
 
-      <View style={styles.quantityContainer}>
-        <TouchableOpacity onPress={() => handleQuantityChange('decrement')}>
-          <Text style={styles.quantityButton}>-</Text>
-        </TouchableOpacity>
-        <Text style={styles.quantityText}>{quantity}</Text>
-        <TouchableOpacity onPress={() => handleQuantityChange('increment')}>
-          <Text style={styles.quantityButton}>+</Text>
+        <View style={styles.quantityContainer}>
+          <TouchableOpacity onPress={() => handleQuantityChange('decrement')} style={styles.quantityBtnWrap}>
+            <Text style={styles.quantityButton}>-</Text>
+          </TouchableOpacity>
+          <Text style={styles.quantityText}>{quantity}</Text>
+          <TouchableOpacity onPress={() => handleQuantityChange('increment')} style={styles.quantityBtnWrap}>
+            <Text style={styles.quantityButton}>+</Text>
+          </TouchableOpacity>
+        </View>
+
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
+          <Text style={styles.addToCartButtonText}>Add to Cart</Text>
         </TouchableOpacity>
       </View>
-
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-      <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
-        <Text style={styles.addToCartButtonText}>Add to Cart</Text>
-      </TouchableOpacity>
     </View>
   );
 };
 
+
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff', alignItems: 'center' },
-  image: { width: '100%', height: 200, resizeMode: 'cover', marginBottom: 20 },
-  title: { fontSize: 24, fontWeight: 'bold' },
-  price: { fontSize: 18, color: '#666' },
-  quantityContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  quantityButton: { fontSize: 30, color: '#007bff', marginHorizontal: 20 },
-  quantityText: { fontSize: 20, fontWeight: 'bold' },
-  addToCartButton: { backgroundColor: '#007bff', paddingVertical: 12, paddingHorizontal: 30, borderRadius: 6 },
-  addToCartButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  errorText: { color: 'red', fontSize: 16, marginTop: 10 },
-  center: { justifyContent: 'center', alignItems: 'center', flex: 1 },
+  container: {
+    flex: 1,
+    backgroundColor: '#f2f2f2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  card: {
+    width: '100%',
+    maxWidth: 400,
+    minHeight: 600,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  image: {
+    width: '100%',
+    height: 400,
+    maxHeight: 480,
+    borderRadius: 12,
+    marginBottom: 24,
+    resizeMode: 'cover',
+    backgroundColor: '#eaeaea',
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#222',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  price: {
+    fontSize: 20,
+    color: '#007bff',
+    fontWeight: '600',
+    marginBottom: 18,
+    textAlign: 'center',
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+    backgroundColor: '#f7f7f7',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    shadowColor: '#007bff',
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+  },
+  quantityBtnWrap: {
+    backgroundColor: '#e6f0ff',
+    borderRadius: 8,
+    padding: 4,
+    marginHorizontal: 8,
+  },
+  quantityButton: {
+    fontSize: 32,
+    color: '#007bff',
+    fontWeight: 'bold',
+    paddingHorizontal: 8,
+  },
+  quantityText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#222',
+    marginHorizontal: 8,
+    minWidth: 32,
+    textAlign: 'center',
+  },
+  addToCartButton: {
+    backgroundColor: '#007bff',
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    borderRadius: 8,
+    marginTop: 10,
+    shadowColor: '#007bff',
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  addToCartButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
+    marginTop: 10,
+    textAlign: 'center',
+  },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+  },
 });
 
 export default AddQuantityScreen;

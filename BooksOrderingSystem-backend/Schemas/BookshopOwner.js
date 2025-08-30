@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const OwnerSchema = new mongoose.Schema({
+     user: {
+        type: mongoose.Schema.Types.ObjectId,  // Reference to User model
+        required: true,
+        ref: 'User',  // Assuming you have a 'User' model
+      },
    
     fullName: {
         type: String,

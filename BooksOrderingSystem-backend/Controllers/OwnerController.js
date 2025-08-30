@@ -19,11 +19,15 @@ const upload = multer({ storage: storage });
 
 // Register user and save details to the database
 const registerOwner = async (req, res) => {
-  const { fullName, address, mobileNo, bookShopName, district, city, nic } = req.body;
+  const { fullName, address, mobileNo, bookShopName, district, city, nic, userId } = req.body;
 
   // expecting both files to be provided
   if (!req.files?.nicFile?.[0] || !req.files?.bookshopImage?.[0]) {
     return res.status(400).send('Both nicFile and bookshopImage are required.');
+  }
+
+  if (!userId) {
+    return res.status(400).json({ message: 'userId is required to link owner to user.' });
   }
 
   try {
@@ -35,6 +39,7 @@ const registerOwner = async (req, res) => {
       district,
       city,
       nic,
+      user: userId,
       nicFile: req.files.nicFile[0].path,
       bookshopImage: req.files.bookshopImage[0].path,
     });
@@ -75,6 +80,20 @@ const getOwnerDetails = async (req, res) => {
     } catch (err) {
         res.status(500).send("Error retrieving owner details: " + err.message);
     }
+};
+
+// Get owner details by userId
+const getOwnerByUserId = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const owner = await Owner.findOne({ user: userId });
+    if (!owner) {
+      return res.status(404).json({ message: 'Owner not found.' });
+    }
+    res.status(200).json(owner);
+  } catch (err) {
+    res.status(500).json({ message: 'Error retrieving owner by userId: ' + err.message });
+  }
 };
 
 // Update owner details by ID
@@ -124,6 +143,6 @@ const deleteOwner = async (req, res) => {
   }
 };
 
-module.exports = { registerOwner, upload, getAllOwners, getOwnerDetails,deleteOwner, updateOwner};
+module.exports = { registerOwner, upload, getAllOwners, getOwnerDetails, deleteOwner, updateOwner, getOwnerByUserId };
 
 
