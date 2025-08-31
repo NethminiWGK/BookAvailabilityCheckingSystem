@@ -8,6 +8,7 @@ const BooksRoutes = require('./Routes/BooksRoutes.js');
 const AuthRoutes = require('./Routes/AuthRoutes.js');
 const CartRoutes = require('./Routes/CartRoutes.js');
 const PaymentRoutes = require('./Routes/Payment.js');
+const OrderRoutes = require('./Routes/OrderRoutes.js');
 
 console.log("JWT from env:", process.env.JWT_SECRET);
 
@@ -43,6 +44,4 @@ app.use('/api', CartRoutes);
 app.use('/api/auth', AuthRoutes);
 app.use('/api', OwnerRoutes);
 app.use('/api/payments', PaymentRoutes);
-
-
-
+app.use('/api/orders', OrderRoutes);

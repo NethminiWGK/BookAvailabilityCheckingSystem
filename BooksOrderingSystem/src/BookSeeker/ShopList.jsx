@@ -3,12 +3,43 @@ import { View, Text, FlatList, TouchableOpacity, Image, TextInput, StyleSheet, T
 import { Ionicons } from '@expo/vector-icons';
 import BottomNavigation from '../common/BottomNavigation';
 import Heading from "../common/Heading";
+import { getUser } from '../common/AuthStore';
 
 // 👉 set this to your machine’s LAN IP (same you used elsewhere)
 const BASE_URL = 'http://10.201.182.65:3001';
 
 
-const ShopListScreen = ({ navigation }) => {
+const ShopListScreen = ({ route, navigation }) => {
+  const [userId, setUserId] = useState(route?.params?.userId || '');
+  const [checkingUser, setCheckingUser] = useState(!userId);
+  useEffect(() => {
+    console.log('ShopListScreen mounted, userId from params/state:', userId);
+    if (!userId) {
+      (async () => {
+        const user = await getUser();
+        if (user && user._id) {
+          console.log('Fetched userId from getUser:', user._id);
+          setUserId(user._id);
+        }
+        setCheckingUser(false);
+      })();
+    }
+  }, [userId]);
+  if ((!userId || typeof userId !== 'string' || userId.length !== 24) && !checkingUser) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ color: 'red', fontSize: 16 }}>Invalid or missing user ID. Please log in again.</Text>
+      </View>
+    );
+  }
+  if (checkingUser) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+        <Text style={{ marginTop: 8 }}>Checking user session…</Text>
+      </View>
+    );
+  }
   const [searchQuery, setSearchQuery] = useState('');
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -87,7 +118,7 @@ const ShopListScreen = ({ navigation }) => {
  
   // replace your existing handlePress
 const handlePress = (ownerId) => {
-  navigation.navigate('BookList', { ownerId});
+  navigation.navigate('BookList', { ownerId,userId});
 };
 
   if (loading) {
@@ -154,7 +185,7 @@ const handlePress = (ownerId) => {
 
       {/* Bottom Navigation always at bottom, does not overlap FlatList */}
       <View style={{ height: 50 }}>
-        <BottomNavigation navigation={navigation} />
+        <BottomNavigation navigation={navigation} userId={userId} />
       </View>
     </View>
   );

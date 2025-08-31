@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useStripe } from '@stripe/stripe-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { getUser } from './AuthStore';
 
 const BASE_URL = 'http://10.201.182.65:3001';
 
@@ -23,19 +24,18 @@ const PaymentScreen = () => {
 
   // Get order details from navigation params
   // Now we'll use the 'amount' and 'currency' passed from the CartPage
-  const { amount = 0, currency = 'LKR', orderItems = [], customerInfo = {} } = route.params || {};
+  const { amount = 0, currency = 'LKR', orderItems = [], userId, address } = route.params || {};
 
   const fetchPaymentSheetParams = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/create-payment-intent`, {
+      const response = await fetch(`${BASE_URL}/api/payments/create-payment-intent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: amount,
+          amount: Math.round(amount * 100), // Stripe expects cents
           currency: currency,
-          customer: customerInfo,
           metadata: {
             orderItems: JSON.stringify(orderItems),
           },
@@ -92,7 +92,26 @@ const PaymentScreen = () => {
     if (error) {
       Alert.alert('Payment Failed', error.message);
     } else {
-      // Payment successful - navigate to success screen
+      // Payment successful - create order in backend
+      try {
+        // Use userId and address from params
+        // For multi-owner carts, create one order per owner (optional), or just use the first ownerId
+        // Here, we assume all items have the same ownerId (single shop checkout)
+        const firstItem = orderItems[0] || {};
+        const ownerId = firstItem.ownerId;
+        await fetch(`${BASE_URL}/api/orders`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ownerId,
+            userId,
+            items: orderItems,
+            address,
+          }),
+        });
+      } catch (e) {
+        // Optionally handle order creation error
+      }
       navigation.navigate('PaymentSuccess', {
         orderTotal: amount, // Pass the total amount
         orderItems,
@@ -265,7 +284,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   payButton: {
-    backgroundColor: '#635bff',
+    backgroundColor: '#007bff',
     paddingVertical: 16,
     borderRadius: 8,
     alignItems: 'center',

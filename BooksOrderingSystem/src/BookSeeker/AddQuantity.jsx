@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, DeviceEventEmitter } from 'react-native';
 import { getUser } from '../common/AuthStore'; // Import your AuthStore function
+import BottomNavigation from '../common/BottomNavigation';
 
 const BASE_URL = 'http://10.201.182.65:3001';
 
 const AddQuantityScreen = ({ route, navigation }) => {
-  const { bookId } = route.params;  // No need to pass userId anymore
+
+  const { userId,bookId, currentQuantity } = route.params;
+const [quantity, setQuantity] = useState(currentQuantity || 1);
   const [book, setBook] = useState(null);
   const [user, setUser] = useState(null); // Store logged-in user
-  const [quantity, setQuantity] = useState(1);
+  
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -75,7 +78,9 @@ const AddQuantityScreen = ({ route, navigation }) => {
       } else {
         console.log(`Added ${quantity} of ${book.title} to cart.`);
         setError('');
-        navigation.navigate('Cart',{ userId: user.id }); // You can remove userId since Cart can also fetch from AsyncStorage
+  Alert.alert('Success', 'Item added to cart');
+  // Emit event to update cart badge globally
+  DeviceEventEmitter.emit('cartUpdated');
       }
     } catch (err) {
       console.error(err);
@@ -114,6 +119,7 @@ const AddQuantityScreen = ({ route, navigation }) => {
           <Text style={styles.addToCartButtonText}>Add to Cart</Text>
         </TouchableOpacity>
       </View>
+      <BottomNavigation navigation={navigation} userId={userId} style={styles.bottomNav} />
     </View>
   );
 };
@@ -140,6 +146,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 6,
+    marginTop: -50, // Move card higher on the page
   },
   image: {
     width: '100%',
@@ -223,6 +230,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
+  },
+
+  bottomNav: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 60,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    elevation: 8,
+    zIndex: 10,
   },
 });
 

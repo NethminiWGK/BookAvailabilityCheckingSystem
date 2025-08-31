@@ -8,7 +8,15 @@ import Heading from '../common/Heading';
 const BASE_URL = 'http://10.201.182.65:3001';
 
 export default function BookListScreen({ route, navigation }) {
-  const { ownerId, userId } = route.params; // Ensure userId is passed in route.params
+  const { ownerId, userId } = route.params || {};
+  if (!userId || typeof userId !== 'string' || userId.length !== 24) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ color: 'red', fontSize: 16 }}>Invalid or missing user ID. Please log in again.</Text>
+      </View>
+    );
+  }
+  // ...existing code...
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -128,7 +136,7 @@ export default function BookListScreen({ route, navigation }) {
         />
       </View>
       <View style={{ height: 50 }}>
-        <BottomNavigation navigation={navigation} />
+        <BottomNavigation navigation={navigation} userId={userId} />
       </View>
     </View>
   );

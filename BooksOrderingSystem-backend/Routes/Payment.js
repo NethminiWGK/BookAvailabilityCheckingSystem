@@ -10,7 +10,7 @@ router.post('/create-payment-intent', async (req, res) => {
 
     try {
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: amount * 100, // This is correct for Stripe, but your frontend sends an already-multiplied value
+            amount: amount, // This is correct for Stripe, but your frontend sends an already-multiplied value
             currency: currency,
         });
         res.status(200).json({

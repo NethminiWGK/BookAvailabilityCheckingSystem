@@ -23,11 +23,12 @@ export default function Login({ navigation }) {
       }
       if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
 
-      // Store the session (JWT token, user data)
-      await saveUser( data.user);  // `saveSession` stores the token and user info
+  // Store the session (JWT token, user data)
+  console.log('Login response user object:', data.user);
+  await saveUser(data.user);  // `saveSession` stores the token and user info
 
-      // Navigate based on user role, pass userId to the next screen
-      if (data.user.role === 'BOOKSELLER') {
+  // Navigate based on user role, pass userId to the next screen
+  if (data.user.role === 'BOOKSELLER') {
         try {
           const userId = data.user._id || data.user.id;
           console.log('Fetching owner for userId:', userId);
@@ -55,7 +56,8 @@ export default function Login({ navigation }) {
         }
       }
       else if (data.user.role === 'BOOKSEEKER') {
-        navigation.replace('ShopList', { userId: data.user._id });
+        console.log('Navigating to ShopList with userId:', data.user.id);
+        navigation.replace('ShopList', { userId: data.user.id });
       } 
       else {
         navigation.replace('ShopTable', { userId: data.user._id });

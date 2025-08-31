@@ -48,7 +48,7 @@ async function addToCart(req, res) {
         quantity: qty
       });
     } else {
-      cart.items[idx].quantity += qty;
+      cart.items[idx].quantity = qty; // REPLACE with new value, do not add
       cart.items[idx].price = book.price;   // keep in sync
       cart.items[idx].title = book.title;
       cart.items[idx].coverImage = book.coverImage;

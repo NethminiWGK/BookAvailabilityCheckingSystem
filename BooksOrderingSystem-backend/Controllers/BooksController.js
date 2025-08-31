@@ -64,7 +64,10 @@ const getBook = async (req, res) => {
     if (!book) {
         return res.status(404).send('Book not found.');
     }
-    res.status(200).json(book);
+  // Return ownerId as a top-level field for easier frontend access
+  const bookObj = book.toObject();
+  bookObj.ownerId = book.owner?._id || book.owner || null;
+  res.status(200).json(bookObj);
   } catch (err) {
     res.status(500).send({ error: 'Error fetching book: ' + err.message });
   }

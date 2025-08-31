@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { DeviceEventEmitter } from 'react-native';
 import {
   View,
   Text,
@@ -12,6 +13,21 @@ const PaymentSuccess = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { orderTotal, orderItems } = route.params || {};
+
+  // Try to get userId from orderItems (assuming each item has userId), or skip if not available
+  useEffect(() => {
+    const clearCart = async () => {
+      if (orderItems && orderItems.length > 0 && orderItems[0].userId) {
+        try {
+          await fetch(`http://10.201.182.65:3001/api/cart/${orderItems[0].userId}`, { method: 'DELETE' });
+          DeviceEventEmitter.emit('cartUpdated');
+        } catch (e) {
+          // Optionally handle error
+        }
+      }
+    };
+    clearCart();
+  }, [orderItems]);
 
   const handleContinueShopping = () => {
     // Navigate back to main screen or shop list
@@ -37,7 +53,7 @@ const PaymentSuccess = () => {
 
         <View style={styles.orderInfo}>
           <Text style={styles.orderText}>
-            Order Total: ${orderTotal?.toFixed(2)}
+            Order Total: Rs.{orderTotal?.toFixed(2)}
           </Text>
           <Text style={styles.orderText}>
             Items: {orderItems?.length} book(s)
@@ -161,7 +177,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   payButton: {
-    backgroundColor: '#635bff',
+    backgroundColor: '#007bff',
     paddingVertical: 16,
     borderRadius: 8,
     alignItems: 'center',
