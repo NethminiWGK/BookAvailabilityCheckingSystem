@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, TextInput, StyleSheet, TouchableWithoutFeedback, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, TextInput, StyleSheet, TouchableWithoutFeedback, ActivityIndicator, RefreshControl, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import BottomNavigation from '../common/BottomNavigation';
 import Heading from "../common/Heading";
@@ -117,8 +117,13 @@ const ShopListScreen = ({ route, navigation }) => {
  }, [searchQuery, shops]);
  
   // replace your existing handlePress
-const handlePress = (ownerId) => {
-  navigation.navigate('BookList', { ownerId,userId});
+  const handlePress = (ownerId) => {
+  console.log('Navigating to BookList with:', { ownerId, userId });
+  if (userId && typeof userId === 'string' && userId.length === 24) {
+    navigation.navigate('BookList', { ownerId, userId });
+  } else {
+    Alert.alert('Error', 'Invalid or missing user ID. Please log in again.');
+  }
 };
 
   if (loading) {

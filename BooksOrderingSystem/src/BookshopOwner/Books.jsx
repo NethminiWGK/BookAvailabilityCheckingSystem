@@ -3,6 +3,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList, Image,TextInput,  ActivityIndicator,TouchableOpacity, TouchableWithoutFeedback , RefreshControl, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Alert } from 'react-native'; // Add this import
+import BottomNavigation from '../common/BottomNavigation';
+import Heading from "../common/Heading";
 
 const BASE_URL = 'http://10.201.182.65:3001';
 
@@ -59,18 +61,45 @@ const handleDelete = async (bookId) => {
   }
 };
 
+
+// Callback to add a new book to the list
+const handleBookAdded = (newBook) => {
+  setBooks(prev => [...prev, {
+    ...newBook,
+    imageUri: newBook.coverImage?.startsWith('http') ? newBook.coverImage : `${BASE_URL}/${(newBook.coverImage || '').replace(/\\/g, '/')}`,
+    price: typeof newBook.price === 'number' ? newBook.price.toFixed(2) : '',
+    id: newBook._id
+  }]);
+};
+
+// Callback to update a book in the list
+const handleBookEdited = (updatedBook) => {
+  setBooks(prev => prev.map(b => b.id === updatedBook._id ? {
+    ...updatedBook,
+    imageUri: updatedBook.coverImage?.startsWith('http') ? updatedBook.coverImage : `${BASE_URL}/${(updatedBook.coverImage || '').replace(/\\/g, '/')}`,
+    price: typeof updatedBook.price === 'number' ? updatedBook.price.toFixed(2) : '',
+    id: updatedBook._id
+  } : b));
+};
+
 const handleEdit = (book) => {
-  navigation.navigate('EditBookDetails', { bookId: book.id });
+  navigation.navigate('EditBookDetails', {
+    bookId: book.id,
+    onBookChanged: handleBookEdited
+  });
 };
 
 const handleAddBooks = () => {
   if (ownerStatus === 'Approved') {
-    navigation.navigate('AddBooks', { ownerId });
+    navigation.navigate('AddBooks', {
+      ownerId,
+      onBookChanged: handleBookAdded
+    });
   } else if (ownerStatus === 'Not Approved') {
     Alert.alert('Registration Pending', 'Please wait for registration approval.');
   } else if (ownerStatus === 'Rejected') {
     Alert.alert('Registration Rejected', 'You cannot add books. Your registration was rejected.');
-  } 
+  }
 };
 
 const fetchBooks = useCallback(async () => {
@@ -112,14 +141,16 @@ const fetchBooks = useCallback(async () => {
     );
   }
 
+
   return (
-      <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Find Your Book</Text>
+    <View style={styles.container}>
+      <View>
+        <Heading title="Find Your Book" />
+       
         <TouchableOpacity
-  style={styles.registerButton}
-  onPress={handleAddBooks}
->
+          style={styles.registerButton}
+          onPress={handleAddBooks}
+        >
           <Text style={styles.registerButtonText}>Add Books</Text>
         </TouchableOpacity>
       </View>
@@ -133,7 +164,6 @@ const fetchBooks = useCallback(async () => {
           placeholder="Search books"
           value={searchQuery}
           onChangeText={setSearchQuery}
-         
         />
       </View>
 
@@ -184,6 +214,7 @@ const fetchBooks = useCallback(async () => {
             </View>
               )}
       />
+      <BottomNavigation navigation={navigation} />
     </View>
         )
       }
@@ -191,29 +222,30 @@ const fetchBooks = useCallback(async () => {
 
 const styles = StyleSheet.create({
 container: { flex: 1, backgroundColor: '#f2f2f2' },
-  header: {
-    backgroundColor: '#007bff', // Blue background
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    flexDirection: 'row', // Align text and button horizontally
-    justifyContent: 'space-between', // Ensure space between header text and button
-    alignItems: 'center', // Vertically center content
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
   registerButton: {
-    backgroundColor: '#FF4500', // Button color for "Add Books"
-    paddingVertical: 4,
-    paddingHorizontal: 7,
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    marginTop: 35,
+    marginRight: 10,
+    backgroundColor: 'red',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
     borderRadius: 5,
+    zIndex: 10,
   },
   registerButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  welcomeText: {
+    fontSize: 20,
+    fontWeight: '500',
+    textAlign: 'center',
+    marginTop: 10,
+    marginBottom: 10,
+    color: '#333',
   },
   searchContainer: {
     flexDirection: 'row',
@@ -221,7 +253,7 @@ container: { flex: 1, backgroundColor: '#f2f2f2' },
     justifyContent: 'center',
     marginLeft: 20,
     backgroundColor: '#fff',
-    marginTop: 10,
+    marginTop: 2,
     width: '90%', // Take up most of the screen width
     borderRadius: 8,
     paddingHorizontal: 10,
@@ -239,7 +271,7 @@ container: { flex: 1, backgroundColor: '#f2f2f2' },
   },
   card: {
     flex: 1,
-    margin: 8,
+    margin: 10,
     backgroundColor: '#fff',
     padding: 10,
     borderRadius: 8,

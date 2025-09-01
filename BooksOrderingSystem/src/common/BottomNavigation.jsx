@@ -47,7 +47,16 @@ const BottomNavigation = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Reservations')}>
+       <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          if (!userId || typeof userId !== 'string' || userId.length !== 24) {
+            alert('Invalid or missing user ID. Please log in again.');
+            return;
+          }
+          navigation.navigate('ReservationList', { userId });
+        }}
+      >
         <Ionicons name="book-outline" size={24} color="black" />
         <Text style={styles.label}>Reservations</Text>
       </TouchableOpacity>

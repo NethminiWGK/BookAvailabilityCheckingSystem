@@ -1,25 +1,33 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image, SafeAreaView } from 'react-native';
 import { getUser } from '../common/AuthStore';
 import BottomNavigation from '../common/BottomNavigation';
+import { useRoute } from '@react-navigation/native';
+import Heading from '../common/Heading';
 
 const BASE_URL = 'http://10.201.182.65:3001';
 
 const ReservationList = ({ navigation }) => {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const route = useRoute();
+  const userIdFromParams = route.params?.userId;
 
   useEffect(() => {
     const fetchReservations = async () => {
       setLoading(true);
-      const user = await getUser();
-      if (!user?.id) {
+      let userId = userIdFromParams;
+      if (!userId) {
+        const user = await getUser();
+        userId = user?.id;
+      }
+      if (!userId) {
         setReservations([]);
         setLoading(false);
         return;
       }
       try {
-        const res = await fetch(`${BASE_URL}/api/reservations/user/${user.id}`);
+        const res = await fetch(`${BASE_URL}/api/reservations/user/${userId}`);
         const data = await res.json();
         setReservations(data.reservations || []);
       } catch (e) {
@@ -31,7 +39,19 @@ const ReservationList = ({ navigation }) => {
     fetchReservations();
     const unsubscribe = navigation.addListener('focus', fetchReservations);
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation, userIdFromParams]);
+
+  // Group reservations by reserved date (date only, not time)
+  function groupReservationsByDate(reservations) {
+    const groups = {};
+    reservations.forEach(item => {
+      if (!item.reservedAt) return;
+      const dateKey = new Date(item.reservedAt).toLocaleDateString();
+      if (!groups[dateKey]) groups[dateKey] = [];
+      groups[dateKey].push(item);
+    });
+    return Object.entries(groups).map(([date, data]) => ({ date, data }));
+  }
 
   const renderReservation = ({ item }) => (
     <View style={styles.card}>
@@ -39,7 +59,8 @@ const ReservationList = ({ navigation }) => {
         {item.bookId?.coverImage ? (
           <Image source={{ uri: `${BASE_URL}/${item.bookId.coverImage}` }} style={styles.image} />
         ) : (
-          <View style={[styles.image, { backgroundColor: '#eee', justifyContent: 'center', alignItems: 'center' }]}>\n            <Text>No Image</Text>
+          <View style={[styles.image, { backgroundColor: '#eee', justifyContent: 'center', alignItems: 'center' }]}>
+            <Text>No Image</Text>
           </View>
         )}
         <View style={styles.info}>
@@ -47,9 +68,7 @@ const ReservationList = ({ navigation }) => {
           <Text style={styles.detail}>Qty: {item.quantity}</Text>
           <Text style={styles.detail}>Fee: Rs. {item.reservationFee.toFixed(2)}</Text>
           <Text style={styles.detail}>Pickup by: {new Date(item.pickupDeadline).toLocaleDateString()}</Text>
-          <Text style={[styles.status, { color: item.status === 'pending' ? '#e67e22' : item.status === 'picked_up' ? '#28a745' : '#e74c3c' }]}>
-            {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-          </Text>
+        
         </View>
       </View>
     </View>
@@ -59,22 +78,31 @@ const ReservationList = ({ navigation }) => {
     return <ActivityIndicator style={{ flex: 1 }} size="large" color="#007bff" />;
   }
 
+  const groupedReservations = groupReservationsByDate(reservations);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>My Reservations</Text>
-      {reservations.length === 0 ? (
-        <Text style={styles.noReservations}>No reservations found.</Text>
-      ) : (
-        <FlatList
-          data={reservations}
-          keyExtractor={(item) => item._id}
-          renderItem={renderReservation}
-          contentContainerStyle={{ paddingBottom: 80 }}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
+      <Heading title="My Reservations" />
+      <View style={styles.container}>
+        {reservations.length === 0 ? (
+          <Text style={styles.noReservations}>No reservations found.</Text>
+        ) : (
+          <FlatList
+            data={groupedReservations}
+            keyExtractor={(item) => item.date}
+            renderItem={({ item }) => (
+              <View>
+                <Text style={styles.orderDate}>Date: {item.date}</Text>
+                {item.data.map(reservation => renderReservation({ item: reservation }))}
+              </View>
+            )}
+            contentContainerStyle={{ paddingBottom: 80 }}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+      </View>
       <BottomNavigation navigation={navigation} />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -84,13 +112,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
     padding: 16,
   },
-  heading: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#333',
-    textAlign: 'center',
-  },
+
   noReservations: {
     fontSize: 18,
     color: '#888',
@@ -136,6 +158,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     marginTop: 6,
+  },
+  orderDate: {
+    color: '#111',
+    marginBottom: 8,
+    fontSize: 15,
+   
   },
 });
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, Button, StyleSheet, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import Heading from '../common/Heading';
 
 const BASE_URL = 'http://10.201.182.65:3001';
 
@@ -75,7 +76,7 @@ const ShopDetails = ({ route, navigation }) => {
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#007bff" />
+        <ActivityIndicator size="large" color="#abb0b6ff" />
       </View>
     );
   }
@@ -85,44 +86,64 @@ const ShopDetails = ({ route, navigation }) => {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Check Details</Text>
+    <View style={{ flex: 1, backgroundColor: '#e3eafce0' }}>
+      <Heading title="Check Details" />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.card}>
+          <Text style={styles.label}>Shop Owner's Full Name: {details.ownerName}</Text>
+          <Text style={styles.label}>Address: {details.address}</Text>
+          <Text style={styles.label}>Mobile No: {details.mobileNo}</Text>
+          <Text style={styles.label}>Book Shop Name: {details.bookShopName}</Text>
+          <Text style={styles.label}>District: {details.district}</Text>
+          <Text style={styles.label}>City: {details.city}</Text>
+          <Text style={styles.label}>NIC: {details.nic}</Text>
 
-      <Text style={styles.label}>Shop Owner's Full Name: {details.ownerName}</Text>
-      <Text style={styles.label}>Address: {details.address}</Text>
-      <Text style={styles.label}>Mobile No: {details.mobileNo}</Text>
-      <Text style={styles.label}>Book Shop Name: {details.bookShopName}</Text>
-      <Text style={styles.label}>District: {details.district}</Text>
-      <Text style={styles.label}>City: {details.city}</Text>
-      <Text style={styles.label}>NIC: {details.nic}</Text>
+          {/* Bookshop Image Display */}
+          <Text style={styles.subHeader}>Bookshop Image:</Text>
+          <Image
+            source={{ uri: details.bookshopImage }}
+            style={styles.smallImage}
+          />
 
-      {/* Bookshop Image Display */}
-      <Text style={styles.subHeader}>Bookshop Image:</Text>
-      <Image
-        source={{ uri: details.bookshopImage }}  // Dynamically load the bookshop image
-        style={styles.coverImage}
-      />
+          {/* NIC Image Display */}
+          <Text style={styles.subHeader}>NIC Image:</Text>
+          <Image
+            source={{ uri: details.nicFile }}
+            style={styles.smallImage}
+          />
 
-      {/* NIC Image Display */}
-      <Text style={styles.subHeader}>NIC Image:</Text>
-      <Image
-        source={{ uri: details.nicFile }}  // Dynamically load the NIC image
-        style={styles.coverImage}
-      />
-
-      <Button title="Approved" onPress={handleAccept} color="green" />
-      <View style={{ height: 10 }} />
-      <Button title="Rejected" onPress={handleReject} color="red" />
-    </ScrollView>
+          <Button title="Approved" onPress={handleAccept} color="green" />
+          <View style={{ height: 10 }} />
+          <Button title="Rejected" onPress={handleReject} color="red" />
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#f4f4f9' },
+  container: { flex: 1, padding: 20 },
+  scrollContent: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+  card: {
+    width: '100%',
+    maxWidth: 420,
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 22,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 6,
+    marginTop: 5,
+    marginBottom: 30,
+    alignSelf: 'center',
+  },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, color: '#333' },
   label: { fontSize: 16, marginBottom: 10, color: '#555' },
   subHeader: { fontSize: 18, fontWeight: 'bold', marginVertical: 10, color: '#333' },
   coverImage: { width: '100%', height: 200, borderRadius: 6, resizeMode: 'cover', marginBottom: 15 },
+  smallImage: { width: '60%', height: 120, borderRadius: 6, resizeMode: 'cover', marginBottom: 15, alignSelf: 'center' },
 });
 
 export default ShopDetails;

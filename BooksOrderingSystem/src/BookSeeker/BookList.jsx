@@ -9,6 +9,7 @@ const BASE_URL = 'http://10.201.182.65:3001';
 
 export default function BookListScreen({ route, navigation }) {
   const { ownerId, userId } = route.params || {};
+    console.log('BookListScreen params:', { ownerId, userId });
   if (!userId || typeof userId !== 'string' || userId.length !== 24) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -121,11 +122,11 @@ export default function BookListScreen({ route, navigation }) {
               <View style={styles.actions}>
                 <TouchableOpacity
                   style={styles.button}
-                  onPress={() => navigation.navigate('AddQuantity', { bookId: item.id })}
+                  onPress={() => navigation.navigate('AddQuantity', { bookId: item.id, userId, mode: 'purchase' })}
                 >
                   <Text style={styles.buttonText}>Buy Now</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddQuantity', { bookId: item.id, userId, mode: 'reservation' })}>
                   <Text style={styles.buttonText}>Book Now</Text>
                 </TouchableOpacity>
               </View>

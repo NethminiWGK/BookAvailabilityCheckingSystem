@@ -22,4 +22,21 @@ router.post('/create-payment-intent', async (req, res) => {
     }
 });
 
+router.post('/create-reservation-intent', async (req, res) => {
+    const { amount, currency, metadata } = req.body;
+    try {
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: amount, // amount in cents
+            currency: currency,
+            metadata: metadata || {},
+        });
+        res.status(200).json({
+            clientSecret: paymentIntent.client_secret,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;

@@ -1,27 +1,34 @@
+
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image } from 'react-native';
 import Heading from '../common/Heading';
 import BottomNavigation from '../common/BottomNavigation';
 import { getUser } from '../common/AuthStore';
-
+import { useRoute } from '@react-navigation/native';
 
 const BASE_URL = 'http://10.201.182.65:3001';
 
 const OrderDetails = ({ navigation }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const route = useRoute();
+  const userIdFromParams = route.params?.userId;
 
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
-      const user = await getUser();
-      if (!user?.id) {
+      let userId = userIdFromParams;
+      if (!userId) {
+        const user = await getUser();
+        userId = user?.id;
+      }
+      if (!userId) {
         setOrders([]);
         setLoading(false);
         return;
       }
       try {
-        const res = await fetch(`${BASE_URL}/api/orders/user/${user.id}`);
+        const res = await fetch(`${BASE_URL}/api/orders/user/${userId}`);
         const data = await res.json();
         setOrders(data.orders || []);
       } catch (e) {
@@ -33,7 +40,7 @@ const OrderDetails = ({ navigation }) => {
     fetchOrders();
     const unsubscribe = navigation.addListener('focus', fetchOrders);
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation, userIdFromParams]);
 
   const renderOrder = ({ item }) => (
     <View>

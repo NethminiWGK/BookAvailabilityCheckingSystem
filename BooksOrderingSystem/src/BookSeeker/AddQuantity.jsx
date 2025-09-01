@@ -6,8 +6,7 @@ import BottomNavigation from '../common/BottomNavigation';
 const BASE_URL = 'http://10.201.182.65:3001';
 
 const AddQuantityScreen = ({ route, navigation }) => {
-
-  const { userId,bookId, currentQuantity } = route.params;
+  const { userId, bookId, currentQuantity, mode } = route.params;
 const [quantity, setQuantity] = useState(currentQuantity || 1);
   const [book, setBook] = useState(null);
   const [user, setUser] = useState(null); // Store logged-in user
@@ -115,9 +114,30 @@ const [quantity, setQuantity] = useState(currentQuantity || 1);
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
-          <Text style={styles.addToCartButtonText}>Add to Cart</Text>
-        </TouchableOpacity>
+        {mode === 'reservation' ? (
+          <TouchableOpacity
+            style={styles.addToCartButton}
+            onPress={() => {
+              // Calculate reservation fee (50% of price * quantity)
+              const reservationFee = (book.price * quantity * 0.5);
+              // Set pickup deadline to 7 days from now
+              const pickupDeadline = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+              navigation.navigate('ReservationPaymentScreen', {
+                book,
+                quantity,
+                reservationFee,
+                pickupDeadline,
+                userId: user?.id || userId,
+              });
+            }}
+          >
+            <Text style={styles.addToCartButtonText}>Reserve Book</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
+            <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+          </TouchableOpacity>
+        )}
       </View>
       <BottomNavigation navigation={navigation} userId={userId} style={styles.bottomNav} />
     </View>

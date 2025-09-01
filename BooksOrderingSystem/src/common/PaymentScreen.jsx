@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useStripe } from '@stripe/stripe-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import Heading from '../common/Heading';
 import { getUser } from './AuthStore';
 
 const BASE_URL = 'http://10.201.182.65:3001';
@@ -121,9 +122,9 @@ const PaymentScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Complete Your Order</Text>
-        </View>
+       
+         <Heading title="Complete Order " />
+       
 
         <View style={styles.orderSummary}>
           <Text style={styles.sectionTitle}>Order Summary</Text>

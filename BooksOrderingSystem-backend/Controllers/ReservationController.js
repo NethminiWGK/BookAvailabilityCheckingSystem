@@ -1,9 +1,13 @@
+const mongoose = require('mongoose');
 const Reservation = require('../Schemas/Reservation');
+const Book = require('../Schemas/Books');
+
 
 // Create a new reservation
 const createReservation = async (req, res) => {
   try {
     const { userId, bookId, quantity, reservationFee } = req.body;
+    console.log('createReservation - userId:', userId, 'bookId:', bookId, 'quantity:', quantity, 'reservationFee:', reservationFee);
     if (!userId || !bookId || !quantity || !reservationFee) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -18,8 +22,10 @@ const createReservation = async (req, res) => {
       pickupDeadline,
       status: 'pending',
     });
+    console.log('Reservation created:', reservation);
     res.status(201).json({ message: 'Reservation created', reservation });
   } catch (e) {
+    console.error('Error in createReservation:', e);
     res.status(500).json({ error: e.message });
   }
 };
@@ -28,9 +34,12 @@ const createReservation = async (req, res) => {
 const getReservationsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
-    const reservations = await Reservation.find({ userId }).populate('bookId').sort({ reservedAt: -1 });
+    console.log('getReservationsByUser - userId:', userId);
+  const reservations = await Reservation.find({ userId: new mongoose.Types.ObjectId(userId) }).populate('bookId').sort({ reservedAt: -1 });
+    console.log('Reservations found:', reservations.length);
     res.status(200).json({ reservations });
   } catch (e) {
+    console.error('Error in getReservationsByUser:', e);
     res.status(500).json({ error: e.message });
   }
 };

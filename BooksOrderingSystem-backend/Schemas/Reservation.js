@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const ReservationSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  bookId: { type: mongoose.Schema.Types.ObjectId, ref: 'Books', required: true },
+  bookId: { type: mongoose.Schema.Types.ObjectId, ref: 'Book', required: true },
   quantity: { type: Number, required: true, default: 1 },
   reservationFee: { type: Number, required: true },
   reservedAt: { type: Date, default: Date.now },
