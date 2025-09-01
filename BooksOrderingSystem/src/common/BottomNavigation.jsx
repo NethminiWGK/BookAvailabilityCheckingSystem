@@ -52,7 +52,16 @@ const BottomNavigation = ({ navigation }) => {
         <Text style={styles.label}>Reservations</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Orders')}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          if (!userId || typeof userId !== 'string' || userId.length !== 24) {
+            alert('Invalid or missing user ID. Please log in again.');
+            return;
+          }
+          navigation.navigate('OrderDetails', { userId });
+        }}
+      >
         <Ionicons name="receipt-outline" size={24} color="black" />
         <Text style={styles.label}>Orders</Text>
       </TouchableOpacity>

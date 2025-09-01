@@ -11,7 +11,9 @@ import Signup from './src/common/Signup';
 import BottomNavigation from './src/common/BottomNavigation';
 import Heading from './src/common/Heading';
 import Orders from './src/common/Orders';
-import Reservations from './src/common/Reservations';
+import ReservationList from './src/BookSeeker/ReservationList';
+import ReservationPaymentScreen from './src/BookSeeker/ReservationPaymentScreen';
+import ReservationSuccess from './src/BookSeeker/ReservationSuccess';
 import Home from './src/BookshopOwner/Home';
 import Books from './src/BookshopOwner/Books';
 import Register from './src/BookshopOwner/Register';
@@ -26,6 +28,7 @@ import ViewShopDetails from './src/Admin/ViewShopDetails';
 import PaymentScreen from './src/common/PaymentScreen';
 import PaymentSuccess from './src/common/PaymentSuccess';
 import AddAddress from './src/BookSeeker/AddAddress';
+import OrderDetails from './src/BookSeeker/OrderDetails';
 
 const Stack = createStackNavigator();
 
@@ -43,7 +46,10 @@ function AppNavigator() {
         <Stack.Screen name="BottomNavigation" component={BottomNavigation} options={{ headerShown: false }} />
         <Stack.Screen name="Heading" component={Heading} options={{ headerShown: false }} />
         <Stack.Screen name="Orders" component={Orders} options={{ headerShown: false }} />
-        <Stack.Screen name="Reservations" component={Reservations} options={{ headerShown: false }} />
+  {/* Reservation Screens */}
+  <Stack.Screen name="ReservationList" component={ReservationList} options={{ headerShown: false }} />
+  <Stack.Screen name="ReservationPaymentScreen" component={ReservationPaymentScreen} options={{ headerShown: false }} />
+  <Stack.Screen name="ReservationSuccess" component={ReservationSuccess} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
         <Stack.Screen name="Books" component={Books} options={{ headerShown: false }} />
         <Stack.Screen name="Register" component={Register} options={{ headerShown: false }} />
@@ -60,6 +66,7 @@ function AppNavigator() {
 
         <Stack.Screen name="ShopTable" component={ShopTable} options={{ headerShown: false }} />
         <Stack.Screen name="ViewShopDetails" component={ViewShopDetails} options={{ headerShown: false }} />
+        <Stack.Screen name="OrderDetails" component={OrderDetails} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

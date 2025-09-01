@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { DeviceEventEmitter } from 'react-native';
+import { getUser } from './AuthStore';
 import {
   View,
   Text,
@@ -17,17 +18,18 @@ const PaymentSuccess = () => {
   // Try to get userId from orderItems (assuming each item has userId), or skip if not available
   useEffect(() => {
     const clearCart = async () => {
-      if (orderItems && orderItems.length > 0 && orderItems[0].userId) {
-        try {
-          await fetch(`http://10.201.182.65:3001/api/cart/${orderItems[0].userId}`, { method: 'DELETE' });
+      try {
+        const user = await getUser();
+        if (user && user.id) {
+          await fetch(`http://10.201.182.65:3001/api/cart/${user.id}`, { method: 'DELETE' });
           DeviceEventEmitter.emit('cartUpdated');
-        } catch (e) {
-          // Optionally handle error
         }
+      } catch (e) {
+        // Optionally handle error
       }
     };
     clearCart();
-  }, [orderItems]);
+  }, []);
 
   const handleContinueShopping = () => {
     // Navigate back to main screen or shop list

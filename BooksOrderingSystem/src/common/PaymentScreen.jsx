@@ -94,16 +94,11 @@ const PaymentScreen = () => {
     } else {
       // Payment successful - create order in backend
       try {
-        // Use userId and address from params
-        // For multi-owner carts, create one order per owner (optional), or just use the first ownerId
-        // Here, we assume all items have the same ownerId (single shop checkout)
-        const firstItem = orderItems[0] || {};
-        const ownerId = firstItem.ownerId;
+        // Send all items (with their ownerId) in a single order
         await fetch(`${BASE_URL}/api/orders`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            ownerId,
             userId,
             items: orderItems,
             address,

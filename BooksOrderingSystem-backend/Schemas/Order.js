@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
 const OrderSchema = new mongoose.Schema({
-  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'BookshopOwner', required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   items: [
     {
       bookId: { type: mongoose.Schema.Types.ObjectId, ref: 'Books', required: true },
+      ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'BookshopOwner', required: true },
       title: String,
       coverImage: String,
       quantity: Number,
