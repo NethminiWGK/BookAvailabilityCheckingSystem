@@ -9,12 +9,13 @@ import {
   SafeAreaView,
   ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useStripe } from '@stripe/stripe-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Heading from '../common/Heading';
 import { getUser } from './AuthStore';
 
-const BASE_URL = 'http://10.201.182.65:3001';
+const BASE_URL = 'http://10.185.32.65:3001';
 
 const PaymentScreen = () => {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
@@ -22,10 +23,23 @@ const PaymentScreen = () => {
   const [paymentSheetEnabled, setPaymentSheetEnabled] = useState(false);
   const navigation = useNavigation();
   const route = useRoute();
+  const { amount = 0, currency = 'LKR', orderItems = [], userId } = route.params || {};
+  const [address, setAddress] = useState(null);
 
-  // Get order details from navigation params
-  // Now we'll use the 'amount' and 'currency' passed from the CartPage
-  const { amount = 0, currency = 'LKR', orderItems = [], userId, address } = route.params || {};
+  // Fetch address from backend on mount and after address update
+  const fetchAddress = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/api/auth/user/${userId}/address`);
+      const data = await res.json();
+      setAddress(data.address || null);
+    } catch (e) {
+      setAddress(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchAddress();
+  }, [userId]);
 
   const fetchPaymentSheetParams = async () => {
     try {
@@ -122,10 +136,41 @@ const PaymentScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-       
-         <Heading title="Complete Order " />
-       
-
+        <Heading title="Complete Order " />
+        {/* Address Box */}
+        <TouchableOpacity
+          style={styles.addressBox}
+          activeOpacity={0.7}
+          onPress={() => {
+            navigation.navigate('AddAddress', {
+              userId,
+              address: address || null,
+              onSave: async (newAddress) => {
+                // Save address to backend
+                try {
+                  await fetch(`${BASE_URL}/api/user/${userId}/address`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address: newAddress })
+                  });
+                  fetchAddress();
+                } catch (e) {}
+              }
+            });
+          }}
+        >
+          <Ionicons name={address ? 'create-outline' : 'add-circle-outline'} size={22} color="#090909ff" style={{ marginRight: 8 }} />
+          {address ? (
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.addressText, { fontWeight: 'bold' }]}>{address.name}</Text>
+              <Text style={styles.addressText}>
+                {address.street}, {address.city}, {address.district}, {address.province}
+              </Text>
+            </View>
+          ) : (
+            <Text style={styles.addressText}>Add Address</Text>
+          )}
+        </TouchableOpacity>
         <View style={styles.orderSummary}>
           <Text style={styles.sectionTitle}>Order Summary</Text>
           {orderItems.map((item, index) => (
@@ -227,28 +272,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
-  itemName: {
-    flex: 2,
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-  },
-  itemDetails: {
-    flex: 1,
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-  },
-  itemTotal: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
   totalContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 15,
     paddingTop: 15,
     borderTopWidth: 2,
     borderTopColor: '#ddd',
@@ -262,6 +286,28 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     color: '#28a745',
+  },
+  addressBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#0b0000ff',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginHorizontal: 18,
+    marginTop: 10,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+    elevation: 1
+  },
+  addressText: {
+    fontSize: 16,
+    color: '#2c2b2bff',
+    fontWeight: 'normal'
   },
   paymentSection: {
     backgroundColor: '#fff',

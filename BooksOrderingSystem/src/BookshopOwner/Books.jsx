@@ -3,10 +3,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList, Image,TextInput,  ActivityIndicator,TouchableOpacity, TouchableWithoutFeedback , RefreshControl, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Alert } from 'react-native'; // Add this import
-import BottomNavigation from '../common/BottomNavigation';
+import OwnerNavBar from './OwnerNavBar';
 import Heading from "../common/Heading";
 
-const BASE_URL = 'http://10.201.182.65:3001';
+const BASE_URL = 'http://10.185.32.65:3001';
 
 
 export default function BooksScreen({ route , navigation}) {
@@ -156,15 +156,16 @@ const fetchBooks = useCallback(async () => {
       </View>
 
       <View style={styles.searchContainer}>
-        <TouchableWithoutFeedback onPress={() => { /* Handle Search Icon Press if needed */ }}>
-          <Ionicons name="search" size={24} color="black" style={styles.searchIcon} />
-        </TouchableWithoutFeedback>
+        
         <TextInput
           style={styles.searchInput}
           placeholder="Search books"
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
+         <TouchableWithoutFeedback onPress={() => { /* Handle Search Icon Press if needed */ }}>
+          <Ionicons name="search" size={24} color="black" style={styles.searchIcon} />
+        </TouchableWithoutFeedback>
       </View>
 
      {ownerStatus === 'Approved' && books.length === 0 ? (
@@ -188,33 +189,32 @@ const fetchBooks = useCallback(async () => {
       <FlatList
         data={filteredBooks}
         keyExtractor={item => item._id}
-         numColumns={2}
+        numColumns={2}
+        columnWrapperStyle={{ alignItems: 'stretch' }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-       
+        ListEmptyComponent={<Text style={styles.empty}>No books found.</Text>}
         renderItem={({ item }) => (
           <View style={styles.card}>
             {item.imageUri
               ? <Image source={{ uri: item.imageUri }} style={styles.image} resizeMode="cover" />
               : <View style={[styles.image, styles.placeholder]} />}
-           
-              <Text style={styles.title}>{item.title}</Text>
-             
-              {!!item.price && <Text style={styles.price}>Rs. {item.price}</Text>}
-                <Text style={styles.stock}>{item.stock}</Text>
-          
-
+            <Text style={styles.title}>{item.title}</Text>
+            {!!item.price && <Text style={styles.price}>Rs. {item.price}</Text>}
+            <Text style={styles.stock}>Stock Level: {item.stock}</Text>
             <View style={styles.actions}>
-              <TouchableOpacity onPress={() => handleEdit(item)}>
+              <TouchableOpacity onPress={() => handleEdit(item)} style={styles.actionButton}>
                 <Ionicons name="create" size={24} color="blue" style={styles.icon} />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleDelete(item.id)}>
+              <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.actionButton}>
                 <Ionicons name="trash" size={24} color="red" style={styles.icon} />
               </TouchableOpacity>
             </View>
-            </View>
-              )}
+          </View>
+        )}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 50, marginTop: 12 }}
       />
-      <BottomNavigation navigation={navigation} />
+      <OwnerNavBar navigation={navigation} ownerId={ownerId} />
     </View>
         )
       }
@@ -251,11 +251,13 @@ container: { flex: 1, backgroundColor: '#f2f2f2' },
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 20,
+     marginLeft: 10,
+    marginRight: 10,
     backgroundColor: '#fff',
-    marginTop: 2,
-    width: '90%', // Take up most of the screen width
-    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#120a0aff',
+    marginTop: 1,
+    borderRadius: 6,
     paddingHorizontal: 10,
   },
   searchInput: {
@@ -263,33 +265,42 @@ container: { flex: 1, backgroundColor: '#f2f2f2' },
     flex: 1,
     paddingLeft: 10,
     fontSize: 16,
-    borderRadius: 5,
-    backgroundColor: '#e6e6e6',
+   
   },
   searchIcon: {
     marginRight: 8,
   },
   card: {
-    flex: 1,
-    margin: 10,
-    backgroundColor: '#fff',
+    width: '48%',
+    margin: '1%',
+    marginLeft: 12,
+    backgroundColor: 'rgba(255,255,255,0.95)',
     padding: 10,
     borderRadius: 8,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    minWidth: '45%',
-    maxWidth: '50%',
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
   image: {
     width: '100%',
     height: 120,
+    minHeight: 120,
+    maxHeight: 120,
     resizeMode: 'cover',
-    borderRadius: 6,
     marginBottom: 8,
+    borderRadius: 6,
+  },
+  actionButton: {
+    width: '48%',
+    alignItems: 'center',
+  },
+  empty: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: '#999',
   },
   placeholder: { backgroundColor: '#eaeaea' },
     title: {

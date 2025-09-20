@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, Button, StyleSheet, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import Heading from '../common/Heading';
 
-const BASE_URL = 'http://10.201.182.65:3001';
+const BASE_URL = 'http://10.185.32.65:3001';
 
 const ShopDetails = ({ route, navigation }) => {
   const { ownerId } = route.params; // This is the shop ID passed from the previous screen

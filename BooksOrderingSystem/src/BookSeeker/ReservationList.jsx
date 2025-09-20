@@ -5,7 +5,7 @@ import BottomNavigation from '../common/BottomNavigation';
 import { useRoute } from '@react-navigation/native';
 import Heading from '../common/Heading';
 
-const BASE_URL = 'http://10.201.182.65:3001';
+const BASE_URL = 'http://10.185.32.65:3001';
 
 const ReservationList = ({ navigation }) => {
   const [reservations, setReservations] = useState([]);
@@ -93,7 +93,11 @@ const ReservationList = ({ navigation }) => {
             renderItem={({ item }) => (
               <View>
                 <Text style={styles.orderDate}>Date: {item.date}</Text>
-                {item.data.map(reservation => renderReservation({ item: reservation }))}
+                {item.data.map(reservation => (
+                  <React.Fragment key={reservation._id}>
+                    {renderReservation({ item: reservation })}
+                  </React.Fragment>
+                ))}
               </View>
             )}
             contentContainerStyle={{ paddingBottom: 80 }}

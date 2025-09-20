@@ -13,6 +13,7 @@ const OrderSchema = new mongoose.Schema({
       // add more fields as needed
     }
   ],
+  // Address for delivery, provided at payment
   address: {
     province: { type: String },
     district: { type: String },
@@ -21,6 +22,7 @@ const OrderSchema = new mongoose.Schema({
     name: { type: String },
     mobileNo: { type: String }
   },
+  status: { type: String, default: 'Not Completed' },
   createdAt: { type: Date, default: Date.now },
 });
 

@@ -29,6 +29,10 @@ import PaymentScreen from './src/common/PaymentScreen';
 import PaymentSuccess from './src/common/PaymentSuccess';
 import AddAddress from './src/BookSeeker/AddAddress';
 import OrderDetails from './src/BookSeeker/OrderDetails';
+import OwnerOrderList from './src/BookshopOwner/OwnerOrderList';
+import OwnerReservationList from './src/BookshopOwner/OwnerReservationList';
+import OwnerNavBar from './src/BookshopOwner/OwnerNavBar';
+
 
 const Stack = createStackNavigator();
 
@@ -67,6 +71,9 @@ function AppNavigator() {
         <Stack.Screen name="ShopTable" component={ShopTable} options={{ headerShown: false }} />
         <Stack.Screen name="ViewShopDetails" component={ViewShopDetails} options={{ headerShown: false }} />
         <Stack.Screen name="OrderDetails" component={OrderDetails} options={{ headerShown: false }} />
+        <Stack.Screen name="OwnerReservationList" component={OwnerReservationList} options={{ headerShown: false }} />
+        <Stack.Screen name="OwnerOrderList" component={OwnerOrderList} options={{ headerShown: false }} />
+        <Stack.Screen name="OwnerNavBar" component={OwnerNavBar} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

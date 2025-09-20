@@ -3,7 +3,7 @@ import { View, TouchableOpacity, Text, StyleSheet, DeviceEventEmitter } from 're
 import { Ionicons } from '@expo/vector-icons';
 import { getUser } from './AuthStore';
 
-const BASE_URL = 'http://10.201.182.65:3001'; // Adjust if needed
+const BASE_URL = 'http://10.185.32.65:3001'; // Adjust if needed
 
 
 // Pass userId as a prop from parent screens: <BottomNavigation navigation={navigation} userId={userId} />
@@ -47,6 +47,15 @@ const BottomNavigation = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate('ShopList', { userId })}
+            >
+              <Ionicons name="home-outline" size={24} color="black" />
+              <Text style={styles.label}>Home</Text>
+            </TouchableOpacity>
+
+            
        <TouchableOpacity
         style={styles.button}
         onPress={() => {
@@ -96,10 +105,7 @@ const BottomNavigation = ({ navigation }) => {
         <Text style={styles.label}>Cart</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddBooks')}>
-        <Ionicons name="person-outline" size={24} color="black" />
-        <Text style={styles.label}>Account</Text>
-      </TouchableOpacity>
+     
     </View>
   );
 };

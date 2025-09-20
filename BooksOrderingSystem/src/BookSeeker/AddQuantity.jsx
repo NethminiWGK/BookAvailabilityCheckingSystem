@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, DeviceEventEmit
 import { getUser } from '../common/AuthStore'; // Import your AuthStore function
 import BottomNavigation from '../common/BottomNavigation';
 
-const BASE_URL = 'http://10.201.182.65:3001';
+const BASE_URL = 'http://10.185.32.65:3001';
 
 const AddQuantityScreen = ({ route, navigation }) => {
   const { userId, bookId, currentQuantity, mode } = route.params;

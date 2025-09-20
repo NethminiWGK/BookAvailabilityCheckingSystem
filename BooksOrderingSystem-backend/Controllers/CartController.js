@@ -69,40 +69,13 @@ async function getCart(req, res) {
 
     const cart = await Cart.findOne({ userId }).lean();
     return res.json({
-      cart: cart?.items || [],
-      address: cart?.address || null
+      cart: cart?.items || []
     });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
 }
 
-// POST /api/cart/address  (body: { userId, address: { province, district, city, phone } })
-async function updateCartAddress(req, res) {
-  try {
-    const { userId, address } = req.body;
-    if (!isId(userId)) return res.status(400).json({ error: 'Invalid userId' });
-    if (
-      !address ||
-      !address.province ||
-      !address.district ||
-      !address.city ||
-      !address.street ||
-      !address.name ||
-      !address.mobileNo
-    ) {
-      return res.status(400).json({ error: 'All address fields are required' });
-    }
-    const cart = await Cart.findOneAndUpdate(
-      { userId },
-      { $set: { address } },
-      { new: true, upsert: true }
-    );
-    return res.json({ message: 'Address updated', address: cart.address });
-  } catch (e) {
-    return res.status(500).json({ error: e.message });
-  }
-}
 
 // PUT /api/cart/update  (body: { userId, bookId, quantity })
 async function updateItemQuantity(req, res) {
@@ -155,4 +128,4 @@ async function deleteCart(req, res) {
   }
 }
 
-module.exports = { addToCart, getCart, updateItemQuantity, removeItemFromCart, deleteCart, updateCartAddress };
+module.exports = { addToCart, getCart, updateItemQuantity, removeItemFromCart, deleteCart };

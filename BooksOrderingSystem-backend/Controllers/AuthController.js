@@ -1,3 +1,28 @@
+// GET /api/user/:userId/address
+const getAddress = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId).lean();
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    return res.json({ address: user.address || null });
+  } catch (e) {
+    return res.status(500).json({ message: e.message });
+  }
+};
+
+// PUT /api/user/:userId/address
+const updateAddress = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const address = req.body.address;
+    if (!address) return res.status(400).json({ message: 'Address required' });
+    const user = await User.findByIdAndUpdate(userId, { address }, { new: true });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    return res.json({ message: 'Address updated', address: user.address });
+  } catch (e) {
+    return res.status(500).json({ message: e.message });
+  }
+};
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../Schemas/User.js');
@@ -14,6 +39,9 @@ const register = async (req, res) => {
 
     if (!name || !email || !password || !role) {
       return res.status(400).json({ message: 'All fields are required' });
+    }
+    if (role === 'ADMIN') {
+      return res.status(403).json({ message: 'Admin registration is not allowed.' });
     }
 
     const exists = await User.findOne({ email });
@@ -89,4 +117,4 @@ const me = async (req, res) => {
   }
 };
 
-module.exports = { register, login, me };
+module.exports = { register, login, me, getAddress, updateAddress };

@@ -9,6 +9,16 @@ export const saveUser = async (user) => {
   }
 };
 
+export const saveSession = async (token, user) => {
+  try {
+    await AsyncStorage.setItem('token', token);
+    await AsyncStorage.setItem('user', JSON.stringify(user));
+  } catch (err) {
+    console.error('Error saving session:', err);
+  }
+};
+
+
 // Get logged-in user
 export const getUser = async () => {
   try {

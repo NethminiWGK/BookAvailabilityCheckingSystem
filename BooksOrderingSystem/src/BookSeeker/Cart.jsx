@@ -8,13 +8,13 @@ import Heading from '../common/Heading';
 import { getUser } from '../common/AuthStore';
 
 
-const BASE_URL = 'http://10.201.182.65:3001'; 
+const BASE_URL = 'http://10.185.32.65:3001'; 
 
 const CartPage = ({ route, navigation }) => {
   const { userId } = route.params; 
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [address, setAddress] = useState(null);
+  // Address logic removed
 
   // Fetch cart data from the API
   const fetchCart = useCallback(async () => {
@@ -22,7 +22,7 @@ const CartPage = ({ route, navigation }) => {
       const res = await fetch(`${BASE_URL}/api/cart/${userId}`);
       const data = await res.json();
       setCartItems(data.cart || []);
-      if (data.address) setAddress(data.address);
+  // Address logic removed
     } catch (error) {
       console.error('Error fetching cart:', error);
       Alert.alert('Error', 'Could not fetch cart data.');
@@ -89,13 +89,11 @@ const CartPage = ({ route, navigation }) => {
         };
       })
     );
-    // Pass address as well
     navigation.navigate('PaymentScreen', {
       amount: totalAmount,
       currency: 'LKR',
       orderItems: orderItemsWithOwner,
       userId,
-      address,
     });
   };
 
@@ -162,34 +160,7 @@ const CartPage = ({ route, navigation }) => {
   return (
     <View style={{ flex: 1, backgroundColor: '#f2f2f2' }}>
       <Heading title="Your Cart" />
-      {/* Address Box */}
-      <TouchableOpacity
-        style={styles.addressBox}
-        activeOpacity={0.7}
-        onPress={() => {
-          navigation.navigate('AddAddress', {
-            userId,
-            province: address?.province || '',
-            district: address?.district || '',
-            city: address?.city || '',
-            street: address?.street || '',
-            name: address?.name || '',
-            mobileNo: address?.mobileNo || '',
-          });
-        }}
-      >
-        <Ionicons name={address ? 'create-outline' : 'add-circle-outline'} size={22} color="#090909ff" style={{ marginRight: 8 }} />
-        {address ? (
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.addressText, { fontWeight: 'bold' }]}>{address.name}</Text>
-            <Text style={styles.addressText}>
-              {address.street}, {address.city}, {address.district}, {address.province}
-            </Text>
-          </View>
-        ) : (
-          <Text style={styles.addressText}>Add Address</Text>
-        )}
-      </TouchableOpacity>
+      {/* Address Box removed */}
       {cartItems.length === 0 ? (
         <Text style={styles.emptyCartText}>Your cart is empty!</Text>
       ) : (
@@ -305,28 +276,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-   addressBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#0b0000ff',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    marginHorizontal: 18,
-    marginTop: 10,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
-    elevation: 1
-  },
-  addressText: {
-    fontSize: 16,
-    color: '#2c2b2bff',
-    fontWeight: 'normal'
-  },
+  // addressBox and addressText styles removed
 });
 
 export default CartPage;

@@ -15,14 +15,6 @@ const cartSchema = new mongoose.Schema({
       price: Number,
     }
   ],
-  address: {
-    province: { type: String },
-    district: { type: String },
-    city: { type: String },
-    street: { type: String },
-    name: { type: String },
-    mobileNo: { type: String }
-  }
 });
 
 const CartModel = mongoose.model('Cart', cartSchema);

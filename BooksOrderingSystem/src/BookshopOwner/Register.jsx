@@ -81,7 +81,7 @@ const RegisterPage = ({ navigation, route }) => {
         type: shopImage.mimeType || 'application/octet-stream',
       });
 
-      const res = await fetch('http://10.201.182.65:3001/api/register', {
+      const res = await fetch('http://10.185.32.65:3001/api/register', {
         method: 'POST',
         body: formData, // don't set Content-Type yourself
       });

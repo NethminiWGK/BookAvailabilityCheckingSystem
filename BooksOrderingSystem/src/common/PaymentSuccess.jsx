@@ -21,7 +21,7 @@ const PaymentSuccess = () => {
       try {
         const user = await getUser();
         if (user && user.id) {
-          await fetch(`http://10.201.182.65:3001/api/cart/${user.id}`, { method: 'DELETE' });
+          await fetch(`http://10.185.32.65:3001/api/cart/${user.id}`, { method: 'DELETE' });
           DeviceEventEmitter.emit('cartUpdated');
         }
       } catch (e) {

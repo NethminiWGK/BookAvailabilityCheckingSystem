@@ -21,7 +21,6 @@ router.post('/cart', addToCart);
 // GET: Get the cart of a specific user
 router.get('/cart/:userId', getCart);
 
-router.post('/cart/address', updateCartAddress);
 
 // POST: Update item quantity in cart
 router.put('/cart/update', updateItemQuantity);

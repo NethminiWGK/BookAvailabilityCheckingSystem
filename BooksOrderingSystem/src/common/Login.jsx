@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 import { saveUser } from './AuthStore';  // Utility to save token and user data
 
-const BASE_URL = 'http://10.201.182.65:3001';
+const BASE_URL = 'http://10.185.32.65:3001';
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const onLogin = async () => {
     try {
@@ -80,13 +83,25 @@ export default function Login({ navigation }) {
         autoCapitalize="none"
         style={styles.input}
       />
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+          style={[styles.input, { paddingRight: 40 }]}
+        />
+        <TouchableOpacity
+          style={styles.eyeIcon}
+          onPress={() => setShowPassword((prev) => !prev)}
+        >
+          <MaterialCommunityIcons
+            name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+            size={24}
+            color="#6e6b6be6"
+          />
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity style={styles.btn} onPress={onLogin}>
         <Text style={styles.btnText}>Login</Text>
@@ -122,14 +137,34 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    padding: 15,
+    height: 54,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 6,
-    marginBottom: 15,
+    borderRadius: 10,
+    marginBottom: 18,
     backgroundColor: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     color: '#333',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  passwordContainer: {
+    width: '100%',
+    position: 'relative',
+    marginBottom: 15,
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 12,
+    top: '50%',
+    transform: [{ translateY: -18 }],
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   btn: {
     width: '100%',

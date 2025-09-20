@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView, Activit
 import Heading from '../common/Heading';
 import { useIsFocused } from '@react-navigation/native';
 
-const BASE_URL = 'http://10.201.182.65:3001';
+const BASE_URL = 'http://10.185.32.65:3001';
 
 const ShopTable = ({ navigation }) => {
   const [registrations, setRegistrations] = useState([]);

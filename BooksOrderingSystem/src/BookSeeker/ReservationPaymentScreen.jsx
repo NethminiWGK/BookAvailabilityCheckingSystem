@@ -28,7 +28,7 @@ const ReservationPaymentScreen = () => {
   // Fetch PaymentIntent client secret from backend
   const fetchPaymentSheetParams = async () => {
     try {
-      const response = await fetch('http://10.201.182.65:3001/api/payments/create-reservation-intent', {
+      const response = await fetch('http://10.185.32.65:3001/api/payments/create-reservation-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -82,7 +82,7 @@ const ReservationPaymentScreen = () => {
     }
     // Payment successful, create reservation in backend
     try {
-      const res = await fetch('http://10.201.182.65:3001/api/reservations', {
+      const res = await fetch('http://10.185.32.65:3001/api/reservations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -101,9 +101,13 @@ const ReservationPaymentScreen = () => {
         });
       } else {
         Alert.alert('Reservation failed', data.error || 'Reservation failed');
+        // Re-initialize payment sheet so user can retry
+        await initializePaymentSheet();
       }
     } catch (e) {
       Alert.alert('Reservation failed', 'Could not create reservation.');
+      // Re-initialize payment sheet so user can retry
+      await initializePaymentSheet();
     } finally {
       setLoading(false);
     }

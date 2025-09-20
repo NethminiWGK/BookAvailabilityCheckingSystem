@@ -5,7 +5,7 @@ import BottomNavigation from '../common/BottomNavigation';
 import Heading from "../common/Heading"; // <-- path to Heading.js
 
 // 👉 set this to your machine’s LAN IP (same you used elsewhere)
-const BASE_URL = 'http://10.201.182.65:3001';
+const BASE_URL = 'http://10.185.32.65:3001';
 
 const TownListScreen = ({ navigation }) => {
     const [userId, setUserId] = useState('');

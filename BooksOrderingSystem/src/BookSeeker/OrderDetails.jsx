@@ -6,7 +6,7 @@ import BottomNavigation from '../common/BottomNavigation';
 import { getUser } from '../common/AuthStore';
 import { useRoute } from '@react-navigation/native';
 
-const BASE_URL = 'http://10.201.182.65:3001';
+const BASE_URL = 'http://10.185.32.65:3001';
 
 const OrderDetails = ({ navigation }) => {
   const [orders, setOrders] = useState([]);

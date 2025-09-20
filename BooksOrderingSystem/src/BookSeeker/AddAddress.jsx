@@ -5,21 +5,17 @@ import { Picker } from '@react-native-picker/picker';
 const AddAddressScreen = ({ route, navigation }) => {
   const {
     userId,
-    province: initialProvince = '',
-    district: initialDistrict = '',
-    city: initialCity = '',
-    street: initialStreet = '',
-    name: initialName = '',
-    mobileNo: initialMobileNo = '',
+    address = {},
   } = route.params || {};
-  const [province, setProvince] = useState(initialProvince);
-  const [district, setDistrict] = useState(initialDistrict);
-  const [city, setCity] = useState(initialCity);
-  const [street, setStreet] = useState(initialStreet);
-  const [name, setName] = useState(initialName);
-  const [mobileNo, setPhone] = useState(initialMobileNo);
+  const [province, setProvince] = useState(address?.province || '');
+  const [district, setDistrict] = useState(address?.district || '');
+  const [city, setCity] = useState(address?.city || '');
+  const [street, setStreet] = useState(address?.street || '');
+  const [name, setName] = useState(address?.name || '');
+  const [mobileNo, setPhone] = useState(address?.mobileNo || '');
   const [loading, setLoading] = useState(false);
 
+  const { onSave } = route.params || {};
   const handleSubmit = async () => {
     if (!province || !district || !city  || !street || !name || !mobileNo) {
       Alert.alert('Error', 'Please fill all fields.');
@@ -27,18 +23,20 @@ const AddAddressScreen = ({ route, navigation }) => {
     }
     setLoading(true);
     try {
-      // Update cart address in backend
-      const res = await fetch(`http://10.201.182.65:3001/api/cart/address`, {
-        method: 'POST',
+      // Save address to backend
+      const res = await fetch(`http://10.185.32.65:3001/api/auth/user/${userId}/address`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, address: { province, district, city, street, name,  mobileNo } })
+        body: JSON.stringify({ address: { province, district, city, street, name, mobileNo } })
       });
       const data = await res.json();
-      console.log('Address response:', data);
       if (res.ok) {
+        if (onSave) {
+          await onSave({ province, district, city, street, name, mobileNo });
+        }
         navigation.goBack();
       } else {
-        Alert.alert('Error', 'Could not update address.');
+        Alert.alert('Error', data.message || 'Could not update address.');
       }
     } catch (e) {
       Alert.alert('Error', 'Could not update address.');

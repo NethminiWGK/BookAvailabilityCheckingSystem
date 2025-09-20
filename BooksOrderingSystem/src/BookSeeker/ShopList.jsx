@@ -6,7 +6,7 @@ import Heading from "../common/Heading";
 import { getUser } from '../common/AuthStore';
 
 // 👉 set this to your machine’s LAN IP (same you used elsewhere)
-const BASE_URL = 'http://10.201.182.65:3001';
+const BASE_URL = 'http://10.185.32.65:3001';
 
 
 const ShopListScreen = ({ route, navigation }) => {
